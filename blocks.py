@@ -43,8 +43,12 @@ class Character(physics.Object, pygame.sprite.Sprite):
         self._items = []
         self._health = 100
 
+        # Character sprite forward/backward, 0 - left, 1 - right
+        self._facing = 1
+        self.__isFlipped = False
+
         gravity = Gravity()
-        gravity.start()
+        #gravity.start()
 
         self.jump = Jump()
 
@@ -57,11 +61,27 @@ class Character(physics.Object, pygame.sprite.Sprite):
     def jumpAction(self):
         self.jump.start()
 
-    def update(self):
-        print "updating the character object"
+    def updateDirection(self):
+        if self._facing == 0 and not self.__isFlipped:
+            self.image = pygame.transform.flip(self.image, True, False)
+            self.__isFlipped = True
+        elif self._facing == 1 and self.__isFlipped:
+            self.image = pygame.transform.flip(self.image, True, False)
+            self.__isFlipped = False
 
-    def controllerUpdate(self, x, y):
+    def update(self):
+        pass
+
+    def controllerEvent(self, x, y):
         self.rect.topleft = self.rect.topleft[0] + x, self.rect.topleft[1] + y
+
+    def mouseEvent(self, mouse_x, mouse_y):
+        if mouse_x < self.rect.center[0]:
+            self._facing = 0
+        else:
+            self._facing = 1
+
+        self.updateDirection()
 
     def destroy(self):
         self.kill()
@@ -94,13 +114,15 @@ class World(physics.Environment):
         self.visibleObjects = pygame.sprite.Group()
         self.visibleCharacters = pygame.sprite.Group()
 
+        self.mouse_x = 0
+        self.mouse_y = 0
+
         self.leftKeyPressed = False
         self.rightKeyPressed = False
         self.upKeyPressed = False
         self.downKeyPressed = False
 
         self.mouseLeftPressed = False
-
         self.spaceKeyPressed = False
 
         #color at the top of the gradient: (hex: 1a3258)
@@ -214,6 +236,8 @@ class World(physics.Environment):
         if key[K_SPACE]:
             self.spaceKeyPressed = True
 
+        self.mouse_x, self.mouse_y = pygame.mouse.get_pos()
+
         mouse = pygame.mouse.get_pressed()
         if mouse[0]:
             self.mouseLeftPressed = True
@@ -266,6 +290,10 @@ class World(physics.Environment):
 
             # simulate a step in the virtual environment
             self.step(simulationTime)
+
+            # pass mouse coordinates to the environment
+            self.inputStep(self.mouse_x, self.mouse_y)
+
             # have pyGame keep the framerate
             self.clock.tick(fps)
 

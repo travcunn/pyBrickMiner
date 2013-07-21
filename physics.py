@@ -13,6 +13,12 @@ class Environment(object):
         for object in self.__objects:
             object.processControllers(time)
 
+    def inputStep(self, mouse_x, mouse_y):
+        # Pass input to the objects. Variables are quick.
+        for object in self.__objects:
+            object.mouseEvent(mouse_x, mouse_y)
+            #TODO: Add a keyboard event here
+
 
 class Object(object):
     def __init__(self, initialPosition):
@@ -36,11 +42,20 @@ class Object(object):
     def processControllers(self, time):
         for controller in self.__controllers:
             controller.step(time)
-        self.controllerUpdate(self.x, self.y)
+        self.controllerEvent(self.x, self.y)
         self.reset()
 
-    def controllerUpdate(self, x, y):
-        raise NotImplementedError
+    def controllerEvent(self, x, y):
+        """
+        Override this function to receive changes from the controllers
+        """
+        pass
+
+    def mouseEvent(self, x, y):
+        """
+        Override this function to watch the mouse
+        """
+        pass
 
     def reset(self):
         self.x = 0

@@ -225,13 +225,13 @@ class World(physics.Environment):
         self.resetInput()
 
         key = pygame.key.get_pressed()
-        if key[K_LEFT]:
+        if key[K_a]:
             self.leftKeyPressed = True
-        if key[K_RIGHT]:
+        if key[K_d]:
             self.rightKeyPressed = True
-        if key[K_UP]:
+        if key[K_w]:
             self.upKeyPressed = True
-        if key[K_DOWN]:
+        if key[K_s]:
             self.downKeyPressed = True
         if key[K_SPACE]:
             self.spaceKeyPressed = True

@@ -9,7 +9,7 @@ class Gravity(physics.Controller):
 
     def update(self, time):
         distance = 0.5 * self._gravity * math.pow(time, 2)
-        self.parent.y = self.parent.y - distance
+        self.parent.move(0, -distance)
 
 
 class Jump(physics.Controller):
@@ -18,5 +18,5 @@ class Jump(physics.Controller):
         self._jumpAmount = jumpAmount
 
     def update(self, time):
-        self.parent.y = self.parent.y - self._jumpAmount
+        self.parent.move(0, -self._jumpAmount)
 

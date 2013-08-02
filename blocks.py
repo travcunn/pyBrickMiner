@@ -9,8 +9,9 @@ import characterLoader
 import physics
 
 
-class Block(pygame.sprite.Sprite):
+class Block(physics.BaseObject, pygame.sprite.Sprite):
     def __init__(self, blocktype, x, y):
+        physics.BaseObject.__init__(self, x, y)
         pygame.sprite.Sprite.__init__(self)
         self.blocktype = blocktype
         self.image, self.rect = resourceLoader.loadBlockImage(blocktype)
@@ -18,9 +19,6 @@ class Block(pygame.sprite.Sprite):
 
     def move(self, x, y):
         self.rect.topleft = x, y
-
-    def getPosition(self):
-        return self.rect.topleft[0], self.rect.topleft[1]
 
     def update(self):
         pass
@@ -32,7 +30,7 @@ class Block(pygame.sprite.Sprite):
 
 class Character(physics.Object, pygame.sprite.Sprite):
     def __init__(self, character, x, y):
-        physics.Object.__init__(self, (x, y))
+        physics.Object.__init__(self, x, y)
         pygame.sprite.Sprite.__init__(self)
 
         self.image, self.rect = characterLoader.loadCharacterImage(character)
@@ -55,11 +53,13 @@ class Character(physics.Object, pygame.sprite.Sprite):
         self.addController(gravity)
         self.addController(self.jump)
 
-    def move(self, x, y):
-        self.rect.topleft = x, y
-
     def jumpAction(self):
         self.jump.start()
+
+    def move(self, x, y):
+        self._position.x = self._position.x + x
+        self._position.y = self._position.y + y
+        self.rect.topleft = (self.rect.topleft[0] + x, self.rect.topleft[1] + y)
 
     def updateDirection(self):
         if self._facing == 0 and not self.__isFlipped:
@@ -153,8 +153,10 @@ class World(physics.Environment):
                     block = Block("grass", xPos, yPos)
                 else:
                     block = Block("dirt", xPos, yPos)
+                self.addBlock(xPos, yPos)
                 self.visibleObjects.add(block)
-        #generate the sky. fix this later.
+
+        #generate the sky. TODO: fix this later.
         sky = Sky(0, -500)
         self.visibleObjects.add(sky)
         sky = Sky(500, -500)
@@ -187,8 +189,7 @@ class World(physics.Environment):
         """
         Moves the character an amount of pixels from the current position
         """
-        self.character.rect.topleft = (self.character.rect.topleft[0] + x,
-                                        self.character.rect.topleft[1] + y)
+        self.character.move(x, y)
         self.allcharacters.update()
 
     def checkCameraPosition(self):
@@ -267,10 +268,13 @@ class World(physics.Environment):
                 self.moveCharacter(-10, 0)
             if self.rightKeyPressed:
                 self.moveCharacter(10, 0)
+
+            # These keys are used for testing
             if self.upKeyPressed:
                 self.moveCharacter(0, -10)
             if self.downKeyPressed:
                 self.moveCharacter(0, 10)
+
 
             if self.mouseLeftPressed:
                 for item in self.visibleObjects:

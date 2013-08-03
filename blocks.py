@@ -17,7 +17,7 @@ class Block(physics.BaseObject, pygame.sprite.Sprite):
         self.image, self.rect = resourceLoader.loadBlockImage(blocktype)
         self.rect.topleft = x, y
 
-    def move(self, x, y):
+    def cameraMoveEvent(self, x, y):
         self.rect.topleft = x, y
 
     def update(self):
@@ -45,12 +45,12 @@ class Character(physics.Object, pygame.sprite.Sprite):
         self._facing = 1
         self.__isFlipped = False
 
-        gravity = Gravity()
-        #gravity.start()
+        self.gravity = Gravity()
+        self.gravity.start()
 
         self.jump = Jump()
 
-        self.addController(gravity)
+        self.addController(self.gravity)
         self.addController(self.jump)
 
     def jumpAction(self):
@@ -59,6 +59,9 @@ class Character(physics.Object, pygame.sprite.Sprite):
     def move(self, x, y):
         self._position.x = self._position.x + x
         self._position.y = self._position.y + y
+        self.cameraMoveEvent(x, y)
+
+    def cameraMoveEvent(self, x, y):
         self.rect.topleft = (self.rect.topleft[0] + x, self.rect.topleft[1] + y)
 
     def updateDirection(self):
@@ -73,7 +76,8 @@ class Character(physics.Object, pygame.sprite.Sprite):
         pass
 
     def controllerEvent(self, x, y):
-        self.rect.topleft = self.rect.topleft[0] + x, self.rect.topleft[1] + y
+        self.move(x, y)
+        #self.rect.topleft = self.rect.topleft[0] + x, self.rect.topleft[1] + y
 
     def mouseEvent(self, mouse_x, mouse_y):
         if mouse_x < self.rect.center[0]:
@@ -92,6 +96,9 @@ class Sky(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.image, self.rect = resourceLoader.loadBlockImage("sky")
         self.rect.topleft = x, y
+
+    def cameraMoveEvent(self, x, y):
+        self.rect.topleft = (self.rect.topleft[0] + x, self.rect.topleft[1] + y)
 
     def update(self):
         pass
@@ -184,6 +191,7 @@ class World(physics.Environment):
         for character in self.visibleCharacters:
             character.rect.topleft = character.rect.topleft[0] + x, character.rect.topleft[1] + y
         self.allsprites.update()
+
 
     def moveCharacter(self, x, y):
         """

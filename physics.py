@@ -46,7 +46,15 @@ class Environment(object):
     def checkCollisions(self):
         position = self.__objects[0].getPosition()
         print "Character position: ", position.x, position.y
-        #print "Hash output: ", self.__hashmap.get(position.x, position.y)
+        print "Hash output: ", self.__hashmap.get((position.x, position.y))
+        if self.__hashmap.get((position.x, position.y)):
+            print "collision!"
+            self.__objects[0].gravity.stop()
+            self.__objects[0].gravity.reset()
+
+            self.__objects[0].jump.stop()
+        else:
+            self.__objects[0].gravity.start()
 
 
 class Position(object):

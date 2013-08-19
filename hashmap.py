@@ -13,7 +13,6 @@ class HashMap(object):
     Spatial hashing that allows for a 3D or 2D domain space to be projected
     into a 1D hash table
     http://www.cs.ucf.edu/~jmesit/publications/scsc%202005.pdf
-    referenced: http://www.pygame.org/wiki/SpatialHashMap
     """
     def __init__(self):
         self.blockSize = 50
